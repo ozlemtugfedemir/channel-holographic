@@ -5,20 +5,7 @@ dH = 0.25; %horizontal inter-antenna distance in number of wavelengths
 dV = 0.25; %vertical inter-antenna distance in number of wavelengths
 
 Lx = Mh*dH;  % array width (and height) in number of wavelengths
-latticePoints = []; %initialize lattice array
 
-%Fill the lattice array with the points
-for ell = -ceil(Lx):ceil(Lx)
-    for mm = -ceil(Lx):ceil(Lx)
-        if (ell/Lx)^2+(mm/Lx)^2<=1
-            latticePoints = [latticePoints; ell, mm];
-        end
-    end
-end
-
-%Initialize the U_DFT array to be used in RS-LS channel estimation
-latticeSize = size(latticePoints);
-UDFT = zeros(Mh*Mv,latticeSize(1));
 
 rng(111)
 N = 20; %number of clusters
@@ -70,9 +57,7 @@ end
 %% Go through all the columns of the first row
 for row = 1:M
     row
-    for nn = 1:latticeSize(1)
-        UDFT(row,nn) = exp(1i*2*pi*posY(row)/Lx*latticePoints(nn,1)+1i*2*pi*posZ(row)/Lx*latticePoints(nn,2))/Mh;
-    end
+    
     
     %Construct the exact spatial correlation matrix using closed-form
     %approximation from the paper
@@ -146,13 +131,11 @@ nmseMMSE = zeros(1,length(SNR));
 nmseLS = zeros(1,length(SNR));
 nmseRSLS = zeros(1,length(SNR));
 nmseRSLS_iso = zeros(1,length(SNR));
-nmseRSLS_DFT = zeros(1,length(SNR));
 
 %Prepare matrices to be multiplied by received pilot signals
 nbrOfRealizations = 100;
 [~,indexx] = sort(diag(Diso),'descend');
 Aiso = Uiso(:,indexx(1:rank_iso))*Uiso(:,indexx(1:rank_iso))';
-ADFT = UDFT*UDFT';
 [~,indexx] = sort(diag(Dexact),'descend');
 Aexact = Uexact(:,indexx(1:rank_exact))*Uexact(:,indexx(1:rank_exact))';
 for scen = 1:length(SNR)
@@ -182,8 +165,7 @@ for scen = 1:length(SNR)
         nmseRSLS_iso(scen) = nmseRSLS_iso(scen) + norm(h-hHatRSLS_iso)^2/nbrOfRealizations/M;
         
         
-        hHatRSLS_DFT = ADFT*receivedPilot/sqrt(rhoo);
-        nmseRSLS_DFT(scen) = nmseRSLS_DFT(scen) + norm(h-hHatRSLS_DFT)^2/nbrOfRealizations/M;
+        
         
     end
 end
@@ -195,4 +177,5 @@ plot(SNR,10*log10(nmseLS))
 plot(SNR,10*log10(nmseRSLS))
 plot(SNR,10*log10(nmseRSLS_iso))
 plot(SNR,10*log10(nmseRSLS_DFT))
+
 
