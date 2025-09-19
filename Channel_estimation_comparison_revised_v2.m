@@ -4,9 +4,6 @@ Mv = 32;  %number of antennas along the vertical axis
 dH = 0.25; %horizontal inter-antenna distance in number of wavelengths
 dV = 0.25; %vertical inter-antenna distance in number of wavelengths
 
-Lx = Mh*dH;  % array width (and height) in number of wavelengths
-
-
 rng(111)
 N = 20; %number of clusters
 rTau = 2.3;
@@ -176,6 +173,7 @@ hold on
 plot(SNR,10*log10(nmseLS))
 plot(SNR,10*log10(nmseRSLS))
 plot(SNR,10*log10(nmseRSLS_iso))
+
 
 
 
